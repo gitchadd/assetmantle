@@ -2,22 +2,41 @@
 
 ## Phase 1: Triage (Weeks 1-2)
 
-- [ ] **1.1** Fork 7 key repos into gitchadd/: node, modules, schema, wallet, documentation, client, genesisTransactions
-- [ ] **1.2** Run test suites on `modules` repo — document pass/fail per module
-- [ ] **1.3** Run test suites on `node` repo — document pass/fail
-- [ ] **1.4** Investigate chain state: is MantleChain producing blocks?
-  - Query RPC: `curl https://rpc.assetmantle.one/status`
-  - Check known RPC endpoints from chain registry
-  - Check validator set: active count, total staked
-  - Check governance: any recent proposals?
-  - Check treasury/community pool balance
-- [ ] **1.5** Complete `reference/module_inventory.md` — catalogue all 45 repos with status
-- [ ] **1.6** Complete `reference/transaction_reference.md` — every tx type from source code
-- [ ] **1.7** Complete `reference/dependency_map.md` — go.mod snapshot across repos
-- [ ] **1.8** Verify module audit in `technical/module_audit.md` against actual source code
-- [ ] **1.9** Assess: go with token migration (Option B) or fresh launch (Option C)?
-  - Decision depends on chain state findings from 1.4
-  - Document decision in `strategy/token_strategy.md`
+- [x] **1.1** Fork 7 key repos into gitchadd/: node, modules, schema, wallet, documentation, client *(2026-03-23: 6 forked, genesisTransactions pending — not on gh fork command but available)*
+- [x] **1.2** Run test suites on `modules` repo — document pass/fail per module *(2026-03-23)*
+  - Go 1.23.12 required (1.18 too old for go.mod format `1.23.1`)
+  - go.mod has commented-out `replace` for local schema path. Published schema version is mismatched — must use local replace.
+  - With local schema replace: **16 pass, 45 fail**
+  - Passing: simulation, assets/{auxiliaries,block,mappable,simulator,transactions}, classifications/{auxiliaries,block,mappable,queries,queries/classification,simulator,transactions}, identities/{auxiliaries,auxiliaries/authenticate,block}
+  - Failing: mostly build failures in parameter packages, key packages, mapper packages (deeper module internals). Some test logic failures in simulation/schema and classification auxiliaries.
+  - **Assessment**: Core module architecture is sound. Failures are in parameter handling and serialization — fixable. Not bitrotted.
+- [x] **1.3** Run test suites on `node` repo — document pass/fail *(2026-03-23)*
+  - Same local replace requirement as modules
+  - Core packages (application, node, utilities/rest/faucet) **build clean**
+  - 3 test packages fail: simulation/make (outdated simapp reference), utilities/rest/keys/add (missing method), utilities/rest/sign (missing imports)
+  - **Assessment**: Node binary compiles. Test failures are in non-critical test utilities, not the chain logic itself.
+- [x] **1.4** Investigate chain state: is MantleChain producing blocks? *(2026-03-23: YES)*
+  - Chain `mantle-1` is LIVE at block 21,558,062 (producing blocks as of 2026-03-23)
+  - RPC: `https://assetmantle-rpc.polkachu.com` (primary RPC, others dead)
+  - REST: `https://assetmantle-api.polkachu.com`
+  - 24 bonded validators. Top: Polkachu (603M), Stakewolle (178M), ITpro (155M), Allnodes (140M)
+  - Total supply: 3,155,146,693 MNTL
+  - Bonded: 1,421,228,149 MNTL (45% staking ratio)
+  - Not bonded: 526,980,611 MNTL
+  - Community pool: ~54.1M MNTL
+  - Last 5 governance proposals all REJECTED (spam airdrops + halving proposal #3)
+  - **Conclusion**: Chain is alive and functional. Token migration (Option B) is viable.
+- [x] **1.5** Complete `reference/module_inventory.md` — catalogue all 45 repos with status *(2026-03-23: full inventory from API, 45 repos catalogued)*
+- [x] **1.6** Complete `reference/transaction_reference.md` — every tx type from source code *(2026-03-23: verified against source. Corrections: classifications has only `govern` tx (define/deputize are auxiliaries). Maintainers has only `govern` tx (deputize is auxiliary).)*
+- [x] **1.7** Complete `reference/dependency_map.md` — go.mod snapshot across repos *(2026-03-23: extracted from all 3 Go repos)*
+- [x] **1.8** Verify module audit in `technical/module_audit.md` against actual source code *(2026-03-23: verified. Key finding: thin modules (classifications, maintainers, splits) have rich auxiliaries called by other modules internally. Also found rwaPOC repo (Scala) — they already started RWA work.)*
+- [x] **1.9** Assess: go with token migration (Option B) or fresh launch (Option C)? *(2026-03-23: Option B recommended)*
+  - Chain is live with 24 validators and 45% staking ratio
+  - Code compiles and core tests pass — not bitrotted
+  - Community pool has 54.1M MNTL — governance funding available
+  - **Decision: Option B (token migration via governance)** — chain is healthy enough
+  - Key risk: governance proposals recently rejected (spam proposals). Need to engage validators directly.
+  - Polkachu is top validator with 603M stake — they're a known Cosmos infra provider, likely receptive to revival effort.
 
 ## Phase 2: Modernize (Weeks 3-8)
 

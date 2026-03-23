@@ -1,13 +1,18 @@
 # Token Strategy: $MNTL Options Analysis
 
-## Current State
+## Current State (Verified 2026-03-23)
 
-- **Supply**: ~2.32B total, ~2.31B circulating
-- **Price**: $0.00 (no price data since Dec 2025)
-- **Holders**: 139 on Etherscan (ERC-20 bridged). Native Cosmos holder count unknown pending chain state investigation.
-- **Exchanges**: Delisted from all tracked exchanges
-- **Staking**: Status unknown. Requires chain state investigation.
-- **Treasury**: Unknown. Requires governance module query.
+- **Total supply**: 3,155,146,693 MNTL (3.155B)
+- **Bonded (staked)**: 1,421,228,149 MNTL (45% staking ratio)
+- **Not bonded**: 526,980,611 MNTL
+- **Community pool**: ~54,138,211 MNTL (~54.1M)
+- **Active validators**: 24 bonded
+- **Top validator**: Polkachu (603M MNTL, 1% commission)
+- **Price**: $0.00 (no price data since Dec 2025, delisted from all exchanges)
+- **ERC-20 holders**: 139 on Etherscan (bridged)
+- **Chain**: `mantle-1`, block 21,558,062, producing blocks
+- **RPC**: `https://assetmantle-rpc.polkachu.com` (primary, most others dead)
+- **Recent governance**: Last 5 proposals all rejected (spam airdrops + halving #3)
 
 ## Option A: Revive $MNTL
 

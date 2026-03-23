@@ -2,7 +2,7 @@
 
 All 45 repositories in the [AssetMantle GitHub org](https://github.com/AssetMantle).
 
-> **Status**: Populated from GitHub web scrape. Needs verification against API (checklist item 1.5).
+> **Status**: Verified against GitHub API (2026-03-23). 45 repos confirmed.
 
 ## Critical (Fork and Maintain)
 

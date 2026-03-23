@@ -2,7 +2,8 @@
 
 All known transaction types across AssetMantle's 7 modules.
 
-> **Status**: Based on GitHub analysis. Needs source code verification (checklist item 1.6).
+> **Status**: Verified against source code (2026-03-23). Checked `x/*/transactions/` dirs.
+> **Correction**: Classifications and Maintainers have fewer external transactions than originally estimated. Their core logic lives in auxiliaries (internal module-to-module calls). See auxiliaries section below.
 
 ## Assets Module
 
@@ -79,22 +80,56 @@ All known transaction types across AssetMantle's 7 modules.
 | `metas/reveal` | Reveal/store metadata |
 | `metas/govern` | Governance-level meta operations |
 
+## Auxiliaries (Internal Module-to-Module Calls)
+
+Verified from source: `x/*/auxiliaries/` directories.
+
+### Classifications Auxiliaries
+| Auxiliary | Description |
+|-----------|-------------|
+| `bond` | Bond tokens to classification |
+| `burn` | Burn classification tokens |
+| `conform` | Check conformance to classification schema |
+| `define` | Define new classification (called internally, not direct tx) |
+| `member` | Check membership in classification |
+| `unbond` | Unbond tokens from classification |
+
+### Maintainers Auxiliaries
+| Auxiliary | Description |
+|-----------|-------------|
+| `authorize` | Check authorization for operation |
+| `deputize` | Delegate maintainer rights (called internally) |
+| `maintain` | Perform maintenance operation |
+| `revoke` | Revoke maintainer rights |
+| `super` | Super-admin operations |
+
+### Splits Auxiliaries
+| Auxiliary | Description |
+|-----------|-------------|
+| `burn` | Burn split tokens |
+| `mint` | Mint split tokens |
+| `purge` | Purge zero-balance splits |
+| `renumerate` | Renumerate split indices |
+| `transfer` | Transfer split ownership |
+
 ## Summary
 
-| Module | Transaction Count |
-|--------|------------------|
-| Assets | 11 |
-| Identities | 10 |
-| Orders | 11 |
-| Classifications | 3 |
-| Maintainers | 2 |
-| Splits | 1 |
-| Metas | 2 |
-| **Total** | **40** |
+| Module | Transactions | Auxiliaries | Total |
+|--------|-------------|-------------|-------|
+| Assets | 11 | — | 11 |
+| Identities | 10 | — | 10 |
+| Orders | 11 | — | 11 |
+| Classifications | 1 (govern) | 6 | 7 |
+| Maintainers | 1 (govern) | 5 | 6 |
+| Splits | 1 (govern) | 5 | 6 |
+| Metas | 2 | — | 2 |
+| **Total** | **37** | **16** | **53** |
 
 ## Notes
 
 - Every module has a `govern` transaction for governance-level operations
-- `deputize` is common across 5 modules (assets, identities, classifications, orders, maintainers)
-- Assets and Orders have the richest transaction sets — these are the most complex modules
-- Splits module has only 1 transaction — needs significant extension for RWA (distributions, cap table)
+- `deputize` exists as a transaction in assets, identities, orders — and as an auxiliary in maintainers
+- Assets and Orders have the richest external transaction sets
+- Classifications, Maintainers, and Splits operate primarily through auxiliaries — their logic is invoked by other modules, not directly by users
+- Splits auxiliaries (mint, burn, transfer) are the actual fractional ownership primitives — they're called by Assets module during mint/burn/send operations
+- **IBM/sarama Kafka dependency** in modules suggests event streaming was planned. Could be useful for RWA event publishing (compliance events, distributions, price updates)
