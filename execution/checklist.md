@@ -40,8 +40,18 @@
 
 ## Phase 2: Modernize (Weeks 3-8)
 
-- [ ] **2.1** Upgrade schema repo to SDK v0.50 compatibility
+- [x] **2.1** Upgrade schema repo to SDK v0.50 compatibility *(2026-03-23: DONE. All 8 tests pass. Branch: rwa/phase2-sdk-upgrade on gitchadd/schema)*
+  - Only breaking change: math types moved from `sdk/types` to `cosmossdk.io/math`
+  - `sdk.Dec` -> `math.LegacyDec`, `sdk.NewInt` -> `math.NewInt`, etc.
+  - `sdk.AccAddress`, `sdk.UnwrapSDKContext`, `sdk.ValidateDenom` unchanged
+  - 23 files changed, 424 insertions(+), 310 deletions(-)
 - [ ] **2.2** Upgrade modules repo — start with metas module as proof of concept
+  - **KEY FINDING**: SDK v0.50 moved `github.com/cosmos/cosmos-sdk/store` to `cosmossdk.io/store`
+  - 135 Go files in modules reference `cosmos-sdk/store` — all need updating
+  - This is the biggest migration task. The entire `helpers/` framework uses `store/types.KVStore`
+  - AssetMantle has a custom module framework in `helpers/` and `helpers/base/` that wraps SDK
+  - The prototype pattern means fixing `helpers/base/module.go` cascades to all 7 modules
+  - Migration order: fix store imports -> fix SDK type changes (same math changes as schema) -> fix module interface changes (AppModule, BeginBlock/EndBlock signatures) -> fix depinject
 - [ ] **2.3** Upgrade remaining 6 modules to SDK v0.50 patterns
 - [ ] **2.4** Upgrade node repo to SDK v0.50 + CometBFT v0.38
 - [ ] **2.5** Upgrade IBC-Go to v8.x

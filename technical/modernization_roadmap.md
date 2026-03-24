@@ -21,13 +21,35 @@
 - **ORM**: Table-based storage pattern. Optional.
 - **Store v2**: New multi-store implementation. Can adopt incrementally.
 
-### Migration Steps
-1. Update `go.mod` dependencies (SDK, CometBFT, IBC-Go)
-2. Migrate each module to implement `appmodule.AppModule`
-3. Add `depinject` providers to each module
-4. Update protobuf service definitions for new registration patterns
-5. Migrate keeper constructors to use `depinject`
-6. Update `app.go` to use new module manager
+### Verified Breaking Changes (from actual migration attempt 2026-03-23)
+
+1. **Store package moved**: `github.com/cosmos/cosmos-sdk/store` -> `cosmossdk.io/store`. Affects 135 files in modules repo. This is the biggest change.
+2. **Math types moved**: `sdk.Dec` -> `math.LegacyDec`, `sdk.NewInt` -> `math.NewInt`, etc. Schema upgrade proves this is mechanical but touches many files.
+3. **Module interface**: `BeginBlock`/`EndBlock` signatures simplified. Only modules implementing `HasBeginBlocker`/`HasEndBlocker` need them.
+4. **Msg validation**: `ValidateBasic()` deprecated, validation moves to message server handlers.
+5. **GetSigners()**: No longer required, inferred from protobuf annotations.
+
+### Migration Steps (Revised)
+1. **Schema (DONE)**: Updated to SDK v0.50.11. All 8 tests pass. Branch: `rwa/phase2-sdk-upgrade` on `gitchadd/schema`.
+2. **Modules store imports**: Replace all 135 `github.com/cosmos/cosmos-sdk/store` references with `cosmossdk.io/store`. This is mechanical sed work.
+3. **Modules math types**: Same `sdk.Dec` -> `math.LegacyDec` changes as schema. Apply across all module Go files.
+4. **Modules helpers framework**: Update `helpers/base/module.go` to implement `cosmossdk.io/core/appmodule.AppModule`. The prototype pattern means this cascades to all 7 modules.
+5. **Modules keeper pattern**: AssetMantle uses `helpers.Keeper` interface with `Initialize(Mapper, ParameterManager, ...interface{})`. May need updating for depinject but can initially wrap the existing pattern.
+6. **Node app.go**: Rewrite for new module manager + depinject.
+7. Run tests, fix remaining compilation errors iteratively.
+
+### AssetMantle Custom Framework (Key Insight)
+
+AssetMantle has a custom module framework in `helpers/` that wraps the Cosmos SDK:
+- `helpers/module.go` — Module interface extending SDK AppModule
+- `helpers/base/module.go` — Base implementation (~260 lines) with prototype factory pattern
+- `helpers/base/module_manager.go` — SDK module manager wrapper
+- All 7 modules inherit this framework via `Prototype()` factory functions
+
+**This is both good and bad for migration:**
+- Good: fixing `helpers/base/module.go` fixes all 7 modules at once
+- Bad: the framework adds a layer of abstraction that must be updated alongside SDK interfaces
+- The `Initialize()` pattern (wiring auxiliaries to keepers) is custom and may conflict with depinject
 7. Run all existing tests, fix breakages
 
 ### Risk Assessment
