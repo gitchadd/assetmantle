@@ -62,10 +62,47 @@
   - Deprecated REST utilities (keys/add, sign) stubbed out
   - Removed Stride IBC rate limiting (needs v0.50 compatible version)
 - [x] **2.5** Upgrade IBC-Go to v8.x *(included in 2.4: IBC-Go v7.4.0 -> v8.3.2, PFM v7 -> v8)*
-- [ ] **2.6** Regenerate protobuf definitions
-- [ ] **2.7** Add CosmWasm module (wasmd) to node
+- [x] **2.6** Regenerate protobuf definitions *(2026-03-27: NOT NEEDED — existing .pb.go files compile clean on SDK v0.50. Can regen later for cleanliness.)*
+- [ ] **2.7** Add CosmWasm module (wasmd) to node *(2026-03-27: wasmd v0.50.0 dep added to go.mod. Full app.go wiring blocked on keeper migration.)*
+  - wasmd v0.50.0 downloaded and compatible with SDK v0.50.11
+  - Full integration requires: adding WasmKeeper to app.go, registering wasm module, configuring permissions
+  - Blocked on: completing keeper constructor migration (item 2.4 WIP)
 - [ ] **2.8** Run full test suite — all modules + node
 - [ ] **2.9** Deploy to local testnet — verify all modules functional
+
+### Node app.go Migration Status (detailed for agent execution)
+
+The node's `application/types/applications/base/application.go` is a ~1000 line file that wires all keepers. SDK v0.50 changed keeper constructors significantly.
+
+**Completed:**
+- Store imports: cosmos-sdk/store -> cosmossdk.io/store
+- DB backend: cometbft-db -> cosmos-db
+- Logger: cometbft/libs/log -> cosmossdk.io/log
+- IBC-Go: v7 -> v8 imports
+- Extracted modules: evidence, feegrant, upgrade -> cosmossdk.io/x/
+- NewContext signature, MultiStorePersistentCache removal
+- KVStoreKeys: sdkTypes -> storeTypes
+- Added runtime import for KVStoreService wrapper
+
+**Remaining keeper constructor fixes (each needs exact v0.50 signature):**
+- `authKeeper.NewAccountKeeper` — needs `addresscodec.Codec` arg
+- `stakingKeeper.NewKeeper` — needs `addresscodec.Codec` args (val, cons)
+- `slashingKeeper.NewKeeper` — needs `KVStoreService` wrapper + codec arg order changed
+- `crisisKeeper.NewKeeper` — needs `KVStoreService` + additional args
+- `upgradeKeeper.NewKeeper` — needs `KVStoreService`
+- `evidenceKeeper.NewKeeper` — needs `KVStoreService`
+- `govKeeper.NewKeeper` — needs `KVStoreService`
+- `ibcKeeper.NewKeeper` — needs updated for IBC-Go v8 constructor
+- `ConsensusParamsKeeper` — SetParamStore interface changed
+
+**Other remaining:**
+- `RegisterNodeService` interface method signature changed
+- `SimulationApplication` missing `ConsensusVersion` method
+- `application.distributionKeeper.GetFeePool` -> `FeePool.Get`
+- `ExportGenesisForModules` now returns error
+- `GetValidatorOutstandingRewardsCoins` now returns error
+
+**Strategy for agent:** Check each keeper's constructor in `~/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/{module}/keeper/keeper.go` for the exact `NewKeeper` signature and match args.
 
 **CHECKPOINT: Human review before Phase 3**
 
