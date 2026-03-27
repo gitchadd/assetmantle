@@ -54,8 +54,14 @@
   - Fixed simulator packages (GetOrGenerate, NewOperationMsg signature changes)
   - Requires local schema replace pointing to upgraded schema
 - [x] **2.3** Upgrade remaining 6 modules to SDK v0.50 patterns *(included in 2.2 — the prototype pattern meant fixing helpers/base/module.go cascaded to all 7 modules)*
-- [ ] **2.4** Upgrade node repo to SDK v0.50 + CometBFT v0.38
-- [ ] **2.5** Upgrade IBC-Go to v8.x
+- [x] **2.4** Upgrade node repo to SDK v0.50 + CometBFT v0.38 *(2026-03-27: DONE. Branch: rwa/phase2-sdk-upgrade on gitchadd/node)*
+  - SDK v0.47.14 -> v0.50.11, CometBFT v0.37.5 -> v0.38.15
+  - Key fix: removed golang.org/x/exp version pin that caused slices.SortFunc incompatibility
+  - Extracted modules migrated: evidence, feegrant, upgrade -> cosmossdk.io/x/
+  - Capability moved to ibc-go/modules/capability
+  - Deprecated REST utilities (keys/add, sign) stubbed out
+  - Removed Stride IBC rate limiting (needs v0.50 compatible version)
+- [x] **2.5** Upgrade IBC-Go to v8.x *(included in 2.4: IBC-Go v7.4.0 -> v8.3.2, PFM v7 -> v8)*
 - [ ] **2.6** Regenerate protobuf definitions
 - [ ] **2.7** Add CosmWasm module (wasmd) to node
 - [ ] **2.8** Run full test suite — all modules + node
