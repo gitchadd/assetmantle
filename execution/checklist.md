@@ -62,15 +62,24 @@
   - Deprecated REST utilities (keys/add, sign) stubbed out
   - Removed Stride IBC rate limiting (needs v0.50 compatible version)
 - [x] **2.5** Upgrade IBC-Go to v8.x *(included in 2.4: IBC-Go v7.4.0 -> v8.3.2, PFM v7 -> v8)*
-- [x] **2.6** Regenerate protobuf definitions *(2026-03-27: NOT NEEDED — existing .pb.go files compile clean on SDK v0.50. Can regen later for cleanliness.)*
-- [ ] **2.7** Add CosmWasm module (wasmd) to node *(2026-03-27: wasmd v0.50.0 dep added to go.mod. Full app.go wiring blocked on keeper migration.)*
-  - wasmd v0.50.0 downloaded and compatible with SDK v0.50.11
+- [x] **2.6** Regenerate protobuf definitions *(NOT NEEDED — existing .pb.go files compile clean on SDK v0.50)*
+- [ ] **2.7** Add CosmWasm module (wasmd) to node
+  - wasmd v0.50.0 dep added to go.mod, compatible with SDK v0.50.11
   - Full integration requires: adding WasmKeeper to app.go, registering wasm module, configuring permissions
-  - Blocked on: completing keeper constructor migration (item 2.4 WIP)
+  - All keeper constructors now migrated — this is unblocked
 - [ ] **2.8** Run full test suite — all modules + node
 - [ ] **2.9** Deploy to local testnet — verify all modules functional
 
-### Node app.go Migration Status (detailed for agent execution)
+### Node app.go Migration COMPLETE (2026-03-29)
+
+All core packages build clean on SDK v0.50.11 + IBC-Go v8.3.2 + CometBFT v0.38.15.
+
+**Temporarily disabled (build-tagged, non-critical):**
+- `application/commands/testnetCommand.go` — genutil API changes
+- `application/types/applications/base/simulationApplication.go` — simulation infrastructure
+- `simulation/` packages — simulation test infrastructure
+
+### Previous detailed notes (kept for reference)
 
 The node's `application/types/applications/base/application.go` is a ~1000 line file that wires all keepers. SDK v0.50 changed keeper constructors significantly.
 
