@@ -124,7 +124,12 @@ The node's `application/types/applications/base/application.go` is a ~1000 line 
 
 ## Phase 3: RWA Module Extensions (Weeks 9-16)
 
-- [ ] **3.1** Extend Identities module with compliance tiers and jurisdiction
+- [x] **3.1** Extend Identities module with compliance tiers and jurisdiction *(2026-03-30)*
+  - Schema: 6 new property constants (ComplianceTier, Jurisdiction, AccreditationExpiry, SanctionsCleared, SanctionsClearedHeight, VerificationProvider)
+  - Schema: 4 new Identity interface methods (GetComplianceTier, GetJurisdiction, GetAccreditationExpiry, IsSanctionsCleared)
+  - Modules: new `compliance` auxiliary in x/identities/auxiliaries/compliance/
+  - Checks: tier >= minTier, jurisdiction match, sanctions cleared, accreditation not expired, identity not expired
+  - Branches: gitchadd/schema rwa/phase3-identity-compliance, gitchadd/modules rwa/phase3-identity-compliance
 - [ ] **3.2** Add pre-transfer compliance hooks to Assets module
 - [ ] **3.3** Build compliance-checker CosmWasm contract
 - [ ] **3.4** Build distribution-engine CosmWasm contract
