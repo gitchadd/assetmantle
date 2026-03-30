@@ -130,7 +130,11 @@ The node's `application/types/applications/base/application.go` is a ~1000 line 
   - Modules: new `compliance` auxiliary in x/identities/auxiliaries/compliance/
   - Checks: tier >= minTier, jurisdiction match, sanctions cleared, accreditation not expired, identity not expired
   - Branches: gitchadd/schema rwa/phase3-identity-compliance, gitchadd/modules rwa/phase3-identity-compliance
-- [ ] **3.2** Add pre-transfer compliance hooks to Assets module
+- [x] **3.2** Add pre-transfer compliance hooks to Assets module *(2026-03-30)*
+  - Wired compliance auxiliary into x/assets/transactions/send/transaction_keeper.go
+  - Checks receiver identity compliance before every transfer
+  - Nil-safe: no-op if compliance auxiliary not loaded (backwards compatible)
+  - Default: tier 0, any jurisdiction (per-classification overrides in future)
 - [ ] **3.3** Build compliance-checker CosmWasm contract
 - [ ] **3.4** Build distribution-engine CosmWasm contract
 - [ ] **3.5** Build oracle-adapter CosmWasm contract
