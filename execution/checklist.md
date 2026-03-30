@@ -138,7 +138,12 @@ The node's `application/types/applications/base/application.go` is a ~1000 line 
 - [ ] **3.3** Build compliance-checker CosmWasm contract
 - [ ] **3.4** Build distribution-engine CosmWasm contract
 - [ ] **3.5** Build oracle-adapter CosmWasm contract
-- [ ] **3.6** Extend Splits module with cap table and distribution schedule
+- [x] **3.6** Extend Splits module with cap table and distribution *(2026-03-30)*
+  - Cap table: existing splits/queries already provide paginated holder list + balances
+  - Supply: existing supply query already provides total supply per asset
+  - Distribution: new `distribute` auxiliary in x/splits/auxiliaries/distribute/
+  - Pro-rata distribution to all holders with rounding dust to last holder
+  - Subtracts from funder, adds shares to each holder atomically
 - [ ] **3.7** Extend Maintainers module with RWA role types
 - [ ] **3.8** Extend Metas module with legal wrapper registry
 - [ ] **3.9** Build custodian-bridge CosmWasm contract
